@@ -1,0 +1,28 @@
+Bug 1: 
+Filename: dominion.c
+Function: villages()
+Bug: When village card is played the player ends up with one more card in their hand than they should have.  Players should draw one card and discard one card for a net change of 0 cards in their hand, but instead they are ending up with a net change of +1 cards in their hand. I found this while running my village random test randomtestcard2 and noticing that the number of cards in the player’s hand was usually 1 more than it should have been.
+Cause: The villages function is not making the player discard a card after drawing a new card.  This was caused on line 1422 of dominion.c where discardCard(handPos, currentPlayer, state, 0); is commented out when it shouldn’t be.  The current code at this line is 
+//discardCard(handPos, currentPlayer, state, 0); 
+And I believe it should be 
+discardCard(handPos, currentPlayer, state, 0);
+
+Bug 2: 
+Filename: dominion.c
+Function: smith
+Bug: When smithy card is played player has one more card than they should have.  Player should gain 3 cards and discard 1 for a total increase of 2.  My testing indicates that players are gaining 4 cards and discarding 1 for a total increase of 3.  I found this while running my smithy random test randomtestcard1 and noticing that the number of cards in the player’s hand was usually 1 more than it should have been.
+Cause: The smithy function seems to be making the player draw 4 cards instead of 3.  The likely cause of this effect is on line 1355 of dominion.c inside function smith().  The loop
+        for (i = 0; i <= 3; i++){
+            drawCard(currentPlayer, state);
+          }
+Will cause the player to draw 4 cards for i = 0, 1, 2, and 3.  By changing the loop from 
+for (i = 0; i <= 3; i++) to 
+for (i = 0; i = 3; i++) 
+the smith will correctly have the player draw 3 cards instead of 2. 
+
+Bug 3: 
+Filename: dominion.c
+Function: adventurers
+Bug: When adventurer card is played player gains 4 cards instead of 1. I found this while running my adventuer random test randomtestadventuer and noticing that the number of cards in the player’s hand was usually 3 more than it should have been.
+Cause: unknown, I was unable to determine the origin of this bug.  It appears to be outside of the adventurers function.  
+Notes: Code inspection indicates the only change made to functionality of adventurer card is removing the shuffle card function from the conditional if (state->deckCount[currentPlayer] <1){ at line 1368, but this does not appear to be the cause of the bug.   
